@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Task Manager</title>
+    <script>
+        let taskList = [];
+
+function Task(name, dueDate, status) {
+	this.name = name;
+	this.dueDate = dueDate;
+	this.status = status || 'pending';
+}
+
+function addUser() {
+	const name = document.getElementById('user').value;
+	if (name !== '') {
+		alert('User added successfully');
+		document.getElementById('user').value = '';
+	}
+	else {
+		alert('Please enter a name');
+	}
+}
+
+function createTask() {
+	const name = document.getElementById('name').value;
+	const dueDate = document.getElementById('dueDate').value;
+	if (name !== '' && dueDate !== '') {
+		const task = new Task(name, dueDate);
+		taskList.push(task);
+		alert('Task created successfully');
+		document.getElementById('name').value = '';
+		document.getElementById('dueDate').value = '';
+		displayTasks();
+	}
+	else {
+		alert('Please enter task name and due date');
+	}
+}
+
+function displayTasks() {
+	const table = document.getElementById('taskTable');
+	table.innerHTML = `
+		<tr>
+			<th>Task Name</th>
+			<th>Due Date</th>
+			<th>Status</th>
+			<th>Actions</th>
+		</tr>
+	`;
+	for (let i = 0; i < taskList.length; i++) {
+		const task = taskList[i];
+		const row = table.insertRow(i + 1);
+		row.insertCell(0).innerHTML = task.name;
+		row.insertCell(1).innerHTML = task.dueDate;
+		row.insertCell(2).innerHTML = task.status;
+		const actionsCell = row.insertCell(3);
+		const editButton = document.createElement('button');
+		editButton.innerHTML = 'Edit';
+		editButton.onclick = function() { editTask(i); };
+		actionsCell.appendChild(editButton);
+		const deleteButton = document.createElement('button');
+		deleteButton.innerHTML = 'Delete';
+		deleteButton.onclick = function() { deleteTask(i); };
+		actionsCell.appendChild(deleteButton);
+        const statusButton = document.createElement('button');
+		statusButton.innerHTML = task.status === 'pending' ? 'Mark Completed' : 'Mark Pending';
+		statusButton.onclick = function() { changeTaskStatus(i); };
+		actionsCell.appendChild(statusButton);
+	}
+}
+
+function filterTask() {
+	const filterTaskValue = document.getElementById('filterTask').value.toLowerCase();
+	const filterStatusValue = document.getElementById('filterStatus').value;
+	const filterDueDateValue = document.getElementById('dueDateFilter').value;
+	const filteredTasks = taskList.filter(function(task) {
+		return task.name.toLowerCase().includes(filterTaskValue) &&
+			(filterStatusValue === '' || task.status === filterStatusValue) &&
+			(filterDueDateValue === '' || task.dueDate === filterDueDateValue);
+	});
+	taskList = filteredTasks;
+	displayTasks();
+}
+
+function deleteTask(index) {
+	if (confirm('Are you sure you want to delete this task?')) {
+		taskList.splice(index, 1);
+		alert('Task deleted successfully');
+		displayTasks();
+	}
+}
+
+function editTask(index) {
+	const task = taskList[index];
+	const name = prompt('Enter new task name', task.name);
+	const dueDate = prompt('Enter new due date (YYYY-MM-DD)', task.dueDate);
+	if (name !== null && dueDate !== null && name !== '' && dueDate !== '') {
+		task.name = name;
+		task.dueDate = dueDate;
+		alert('Task edited successfully');
+		displayTasks();
+	}
+	else {
+		alert('Please enter a valid name and due date');
+	}
+}
+
+function changeTaskStatus(index) {
+	const task = taskList[index];
+	if (task.status === 'pending') {
+		task.status = 'completed';
+	}
+	else {
+		task.status = 'pending';
+	}
+	alert('Task status changed successfully');
+	displayTasks();
+}
+
+    </script>
+    <style>
+        body::before{
+            content: "";
+            background-color: aquamarine;
+            position: absolute;
+            top:0px;
+            left:0px;
+            height: 100%;
+            width:100%;
+            z-index: -1;
+            opacity: 1;
+        }
+    </style>
+
+</head>
+<body>
+	<h1>Task Manager</h1>
+	<label for="user">Add User:</label>
+	<input type="text" id="user" placeholder="Name">
+	<button onclick="addUser()">Add User</button>
+	<hr>
+	<label for="name">Task Name:</label>
+	<input type="text" id="name" placeholder="Task Name">
+	<label for="dueDate">Due Date:</label>
+	<input type="date" id="dueDate">
+	<button onclick="createTask()">Create Task</button>
+	<hr>
+	<label for="filterTask">Filter Task:</label>
+	<input type="text" id="filterTask" placeholder="Task Name" onkeyup="filterTask()">
+	<select id="filterStatus" onchange="filterTask()">
+		<option value="">All</option>
+		<option value="pending">Pending</option>
+		<option value="completed">Completed</option>
+	</select>
+	<label for="dueDateFilter">Due Date:</label>
+	<input type="date" id="dueDateFilter" onchange="filterTask()">
+    <!-- TABLE -->
+	<table id="taskTable">
+		<tr>
+			<th>Task-Name</th>
+			<th>Due-Date</th>
+			<th>Status</th>
+			<th>Actions</th>
+		</tr>
+	</table>
+</body>
+</html>
